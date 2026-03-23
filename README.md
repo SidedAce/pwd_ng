@@ -3,7 +3,6 @@
 This repository is the planning and specification source of truth for **PWD (Politics, War, Droods)** before implementation begins.
 
 The goal of this phase is to remove ambiguity before code exists. We will define:
-
 - the game design and product scope
 - the system architecture and authority boundaries
 - the data model and backend workflow

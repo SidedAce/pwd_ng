@@ -1,0 +1,11 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Development-only rules so the app can read/write while we build the
+    // proper security model. Replace these with tighter collection rules soon.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

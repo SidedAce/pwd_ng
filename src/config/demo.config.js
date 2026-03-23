@@ -1,0 +1,77 @@
+// Demo data exists only to make early product flows testable without manual
+// Firestore setup. Keep it centralized so it can be changed or removed cleanly.
+export const demoConfig = {
+  enabled: true,
+  sessions: [
+    {
+      id: "demo-session-alpha",
+      data: {
+        name: "Demo Session Alpha",
+        slug: "demo-session-alpha",
+        description: "Placeholder campaign session for early PWD application demos.",
+        status: "active",
+        currentDay: 12,
+        tickTimezone: "America/New_York",
+        tickHour: 0,
+        isPublicJoinEnabled: true,
+      },
+    },
+    {
+      id: "demo-session-bravo",
+      data: {
+        name: "Demo Session Bravo",
+        slug: "demo-session-bravo",
+        description: "Second placeholder session so dropdowns have multiple options during testing.",
+        status: "active",
+        currentDay: 27,
+        tickTimezone: "America/New_York",
+        tickHour: 0,
+        isPublicJoinEnabled: true,
+      },
+    },
+  ],
+  nations: [
+    {
+      id: "demo-aurelian-republic",
+      sessionId: "demo-session-alpha",
+      data: {
+        name: "Aurelian Republic",
+        slug: "aurelian-republic",
+        ideology: "Civic Republicanism",
+        description: "A sample nation for join-request demos and UI bootstrapping.",
+        status: "active",
+        treasury: "$12.4B",
+        hiddenTreasuryDelta: 0,
+        publicNotes: "Demo nation seeded for request-flow testing.",
+        gmNotes: "Safe placeholder nation.",
+        ownerUserIds: [],
+        provinceIds: [],
+        tags: ["demo", "joinable"],
+        structureCount: 18,
+        dailyIncome: "$84M / day",
+        assetCount: 0,
+      },
+    },
+    {
+      id: "demo-marrow-federation",
+      sessionId: "demo-session-bravo",
+      data: {
+        name: "Marrow Federation",
+        slug: "marrow-federation",
+        ideology: "Technocratic Federalism",
+        description: "A second sample nation for join-request testing in another session.",
+        status: "active",
+        treasury: "$9.1B",
+        hiddenTreasuryDelta: 0,
+        publicNotes: "Secondary demo nation.",
+        gmNotes: "Safe placeholder nation.",
+        ownerUserIds: [],
+        provinceIds: [],
+        tags: ["demo", "joinable"],
+        structureCount: 11,
+        dailyIncome: "$51M / day",
+        assetCount: 0,
+      },
+    },
+  ],
+};

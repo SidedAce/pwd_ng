@@ -20,6 +20,16 @@ The goal of this phase is to remove ambiguity before code exists. We will define
 - [docs/07-firestore-schema.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/07-firestore-schema.md)
 - [docs/08-action-catalog.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/08-action-catalog.md)
 - [docs/09-security-matrix.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/09-security-matrix.md)
+- [docs/10-config-framework.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/10-config-framework.md)
+- [docs/11-auth-foundation.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/11-auth-foundation.md)
+- [docs/12-user-session-bootstrap.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/12-user-session-bootstrap.md)
+- [docs/13-nation-lifecycle-foundation.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/13-nation-lifecycle-foundation.md)
+- [docs/14-demo-session-and-application-flows.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/14-demo-session-and-application-flows.md)
+- [docs/15-firestore-setup.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/15-firestore-setup.md)
+- [docs/16-gm-application-panel.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/16-gm-application-panel.md)
+- [docs/17-action-handler-architecture.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/17-action-handler-architecture.md)
+- [docs/18-action-definition-registry.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/18-action-definition-registry.md)
+- [docs/19-gm-key-elevation.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/19-gm-key-elevation.md)
 
 ## Planning Principles
 

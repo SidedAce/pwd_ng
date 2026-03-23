@@ -21,6 +21,8 @@ export const routeManifestConfig = {
     production: "/app/nation/production",
     assets: "/app/nation/assets",
     formations: "/app/nation/formations",
+    reports: "/app/nation/reports",
+    admin: "/app/nation/admin",
   },
   gm: {
     root: "/app/gm",

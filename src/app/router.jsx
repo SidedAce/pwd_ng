@@ -1,24 +1,22 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import { routeManifestConfig } from "../config/routeManifest.config";
 import { ProtectedRoute } from "../features/auth/ProtectedRoute";
 import { ProtectedRoleRoute } from "../features/auth/ProtectedRoleRoute";
-import { AppLayout, GmLayout, NationLayout, PublicLayout } from "../routes/layouts";
+import { AppLayout, NationLayout, PublicLayout } from "../routes/layouts";
 import {
   AccessRequestPage,
   ActionHistoryPage,
   AppHomePage,
   EventsPage,
-  GmActionsPage,
-  GmDashboardPage,
-  GmNationsPage,
-  GmReportsPage,
   HomePage,
   LoginPage,
+  NationAdminPage,
   NationAssetsPage,
   NationFormationsPage,
   NationOverviewPage,
   NationProductionPage,
   NationProvincesPage,
+  NationReportsPage,
   NationStructuresPage,
   ProfilePage,
   SessionSelectPage,
@@ -44,7 +42,10 @@ export const router = createBrowserRouter([
           { path: "profile", element: <ProfilePage /> },
           { path: "session-select", element: <SessionSelectPage /> },
           { path: "events", element: <EventsPage /> },
-          { path: "actions", element: <ActionHistoryPage /> },
+          {
+            element: <ProtectedRoleRoute allow="gm" />,
+            children: [{ path: "actions", element: <ActionHistoryPage /> }],
+          },
           {
             path: "nation",
             element: <NationLayout />,
@@ -56,21 +57,20 @@ export const router = createBrowserRouter([
               { path: "production", element: <NationProductionPage /> },
               { path: "assets", element: <NationAssetsPage /> },
               { path: "formations", element: <NationFormationsPage /> },
+              { path: "reports", element: <NationReportsPage /> },
+              {
+                element: <ProtectedRoleRoute allow="gm" />,
+                children: [{ path: "admin", element: <NationAdminPage /> }],
+              },
             ],
           },
           {
             element: <ProtectedRoleRoute allow="gm" />,
             children: [
-              {
-                path: "gm",
-                element: <GmLayout />,
-                children: [
-                  { index: true, element: <GmDashboardPage /> },
-                  { path: "actions", element: <GmActionsPage /> },
-                  { path: "nations", element: <GmNationsPage /> },
-                  { path: "reports", element: <GmReportsPage /> },
-                ],
-              },
+              { path: "gm", element: <Navigate to="/app/actions" replace /> },
+              { path: "gm/actions", element: <Navigate to="/app/actions" replace /> },
+              { path: "gm/nations", element: <Navigate to="/app/nation/admin" replace /> },
+              { path: "gm/reports", element: <Navigate to="/app/nation/reports" replace /> },
             ],
           },
         ],

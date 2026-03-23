@@ -112,10 +112,10 @@ export const pageContentConfig = {
   },
   gmNations: {
     title: "Nation Administration",
-    body: "Nation approval, ownership, and emergency override tools will live here.",
+    body: "Manage nation lifecycle state, ownership, and membership visibility from this administration console.",
   },
   gmReports: {
-    title: "Reports",
-    body: "Economy, infrastructure, and force comparison reports will be generated from this surface.",
+    title: "Nation Reports",
+    body: "Use the compact comparison workbench to select two nations and two data categories side by side, including military quantities for fast analysis.",
   },
 };

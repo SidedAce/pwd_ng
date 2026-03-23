@@ -37,9 +37,9 @@ body {
 }
 
 .shell-header {
-  padding: 2rem;
+  padding: 1.5rem 1.75rem;
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   justify-content: space-between;
   align-items: end;
 }
@@ -67,7 +67,7 @@ ul {
 h1 {
   font-size: var(--font-size-hero);
   line-height: 1;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 h2 {
@@ -100,7 +100,7 @@ h2 {
 .stat-card,
 .action-card,
 .payload-card {
-  padding: 1rem 1.1rem;
+  padding: 0.9rem 1rem;
   border-radius: var(--radius-card);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border-soft);
@@ -312,6 +312,78 @@ textarea {
   gap: 1rem;
 }
 
+.comparison-workbench,
+.comparison-grid,
+.comparison-toolbar,
+.comparison-control-grid,
+.nation-admin-grid,
+.admin-membership-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.comparison-toolbar {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 1rem;
+}
+
+.comparison-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.nation-admin-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.comparison-pane {
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-alt);
+  padding: 1rem 1.1rem;
+}
+
+.comparison-pane-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.comparison-pane-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.comparison-control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.comparison-card {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.admin-owner-field {
+  margin-top: 1rem;
+}
+
+.comparison-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.comparison-line strong {
+  text-align: right;
+  max-width: 60%;
+}
+
 .queue-card {
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-card);
@@ -395,7 +467,7 @@ textarea {
   }
 
   .shell-header {
-    padding: 1.4rem;
+    padding: 1.15rem 1.25rem;
     display: block;
   }
 
@@ -421,5 +493,27 @@ textarea {
 
   .auth-actions {
     flex-wrap: wrap;
+  }
+
+  .comparison-grid,
+  .nation-admin-grid,
+  .comparison-control-grid,
+  .comparison-pane-header {
+    grid-template-columns: 1fr;
+    display: block;
+  }
+
+  .comparison-pane-header .soft-copy {
+    margin-top: 0.75rem;
+  }
+
+  .comparison-line {
+    display: block;
+  }
+
+  .comparison-line strong {
+    display: block;
+    max-width: none;
+    text-align: left;
   }
 }

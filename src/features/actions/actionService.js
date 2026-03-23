@@ -11,6 +11,15 @@ export async function listActions() {
   }));
 }
 
+export async function listEntities(collectionName) {
+  const snapshot = await getDocs(collection(db, collectionName));
+
+  return snapshot.docs.map((entityDoc) => ({
+    id: entityDoc.id,
+    ...entityDoc.data(),
+  }));
+}
+
 export async function createAction(payload) {
   const actionsRef = collection(db, "actions");
   return addDoc(actionsRef, payload);
@@ -66,6 +75,13 @@ export async function createEntity(collectionName, id, data) {
 
 export async function updateAction(actionId, data) {
   return updateDoc(doc(db, "actions", actionId), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateEntity(collectionName, id, data) {
+  return updateDoc(doc(db, collectionName, id), {
     ...data,
     updatedAt: serverTimestamp(),
   });

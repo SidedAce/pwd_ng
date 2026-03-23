@@ -17,10 +17,6 @@ import { useAuth } from "../auth/AuthProvider";
 const AppDataContext = createContext(null);
 
 function getBootstrapRole(email) {
-  if (email && bootstrapConfig.bootstrapAdminEmails.includes(email)) {
-    return "admin";
-  }
-
   return bootstrapConfig.defaultGlobalRole;
 }
 
@@ -69,7 +65,10 @@ async function ensureUserProfile(user) {
     });
   } else {
     const existingData = existing.data();
-    const baseGlobalRole = resolveBaseRole(existingData, user);
+    const baseGlobalRole =
+      existingData?.gmElevation?.isActive || existingData?.baseGlobalRole === bootstrapConfig.defaultGlobalRole
+        ? resolveBaseRole(existingData, user)
+        : bootstrapConfig.defaultGlobalRole;
     const gmElevation = resolveElevationState(existingData);
 
     await setDoc(
@@ -112,6 +111,15 @@ async function ensureDemoSeed(profile) {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+      } else {
+        await setDoc(
+          sessionRef,
+          {
+            ...session.data,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
       }
     }),
   );
@@ -128,6 +136,16 @@ async function ensureDemoSeed(profile) {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+      } else {
+        await setDoc(
+          nationRef,
+          {
+            ...nation.data,
+            sessionId: nation.sessionId,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
       }
     }),
   );

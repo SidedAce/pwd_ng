@@ -1,7 +1,9 @@
 import { ConfigCardGrid } from "../components/ConfigCardGrid";
+import { NationComparisonWorkbench } from "../components/NationComparisonWorkbench";
 import { BulletList, Panel, StatGrid } from "../components/PageSection";
 import { authConfig } from "../config/auth.config";
 import { gameConfig } from "../config/game.config";
+import { nationAdminConfig } from "../config/nationAdmin.config";
 import { pageContentConfig } from "../config/pageContent.config";
 import { useAppData } from "../features/app/AppDataProvider";
 import {
@@ -14,17 +16,23 @@ import {
   isReviewableAction,
   validateActionSubmission,
 } from "../features/actions/actionDefinitions";
-import { submitStructuredAction } from "../features/actions/actionService";
+import { submitStructuredAction, updateEntity } from "../features/actions/actionService";
 import { ACTION_TYPES } from "../features/actions/actionTypes";
 import { useUserActions } from "../features/actions/useUserActions";
 import { useAuth } from "../features/auth/AuthProvider";
 import { processApplicationDecision } from "../features/gm/processApplicationDecision";
+import { useNationAdminData } from "../features/gm/useNationAdminData";
+import { useNationDirectory } from "../features/gm/useNationDirectory";
 import { useGmApplications } from "../features/gm/useGmApplications";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db, firebaseApp } from "../lib/firebase";
 import { formatTimestamp } from "../lib/formatting";
 import { mockSession } from "../features/session/mockSession";
+
+function NationMembershipNotice() {
+  return <p className="support-copy">You do not currently have an active nation membership, so player-facing nation controls are unavailable.</p>;
+}
 
 export function HomePage() {
   const firebaseStatus = firebaseApp?.name ? "Configured" : "Unavailable";
@@ -633,48 +641,60 @@ export function EventsPage() {
 
 export function ActionHistoryPage() {
   const { user } = useAuth();
+  const { canAccessGm } = useAppData();
   const { actions, error, status } = useUserActions(user?.uid);
 
   return (
-    <Panel title={pageContentConfig.actions.title}>
-      {actions.length ? (
-        <div className="card-grid">
-          {actions.map((action) => (
-            <article key={action.id} className="action-card">
-              <strong>{getActionTypeTitle(action.type)}</strong>
-              <p>Status: {getActionStatusLabel(action.status)}</p>
-              <p>Session: {action.sessionId || "None"}</p>
-              <p>{action.validationSummary || "No summary yet."}</p>
+    <section className="section-stack">
+      {canAccessGm ? <GmReviewQueueSection /> : null}
+
+      <Panel title={pageContentConfig.actions.title}>
+        {actions.length ? (
+          <div className="card-grid">
+            {actions.map((action) => (
+              <article key={action.id} className="action-card">
+                <strong>{getActionTypeTitle(action.type)}</strong>
+                <p>Status: {getActionStatusLabel(action.status)}</p>
+                <p>Session: {action.sessionId || "None"}</p>
+                <p>{action.validationSummary || "No summary yet."}</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="card-grid">
+            <article className="action-card">
+              <strong>No Actions Yet</strong>
+              <p>{pageContentConfig.actions.emptyState}</p>
+              <p>Load status: {status}</p>
+              {error ? <span className="error-copy">{error}</span> : null}
             </article>
-          ))}
-        </div>
-      ) : (
-        <div className="card-grid">
-          <article className="action-card">
-            <strong>No Actions Yet</strong>
-            <p>{pageContentConfig.actions.emptyState}</p>
-            <p>Load status: {status}</p>
-            {error ? <span className="error-copy">{error}</span> : null}
-          </article>
-        </div>
-      )}
-    </Panel>
+          </div>
+        )}
+      </Panel>
+    </section>
   );
 }
 
 export function NationOverviewPage() {
   const { activeNation } = useAppData();
-  const nation = activeNation || mockSession.nation;
+
+  if (!activeNation) {
+    return (
+      <Panel title={pageContentConfig.nationOverview.title}>
+        <NationMembershipNotice />
+      </Panel>
+    );
+  }
 
   return (
     <Panel title={pageContentConfig.nationOverview.title}>
       <StatGrid
         stats={[
-          { label: "Nation", value: nation.name || "Unknown" },
-          { label: "Treasury", value: nation.treasury ?? mockSession.nation.treasury },
-          { label: "Daily Income", value: nation.dailyIncome ?? mockSession.nation.dailyIncome },
-          { label: "Provinces", value: nation.provinceIds?.length ?? mockSession.nation.provinces },
-          { label: "Structures", value: nation.structureCount ?? mockSession.nation.structures },
+          { label: "Nation", value: activeNation.name || "Unknown" },
+          { label: "Treasury", value: activeNation.treasury ?? "None" },
+          { label: "Daily Income", value: activeNation.dailyIncome ?? "None" },
+          { label: "Provinces", value: activeNation.provinceIds?.length ?? 0 },
+          { label: "Structures", value: activeNation.structureCount ?? 0 },
         ]}
       />
     </Panel>
@@ -682,66 +702,291 @@ export function NationOverviewPage() {
 }
 
 export function NationProvincesPage() {
+  const { activeNation } = useAppData();
+
   return (
     <Panel title={pageContentConfig.provinces.title}>
-      <p>{pageContentConfig.provinces.body}</p>
+      {activeNation ? <p>{pageContentConfig.provinces.body}</p> : <NationMembershipNotice />}
     </Panel>
   );
 }
 
 export function NationStructuresPage() {
+  const { activeNation } = useAppData();
+
   return (
     <Panel title={pageContentConfig.structures.title}>
-      <p>{pageContentConfig.structures.body}</p>
+      {activeNation ? <p>{pageContentConfig.structures.body}</p> : <NationMembershipNotice />}
     </Panel>
   );
 }
 
 export function NationProductionPage() {
+  const { activeNation } = useAppData();
+
   return (
     <Panel title={pageContentConfig.production.title}>
-      <p>{pageContentConfig.production.body}</p>
+      {activeNation ? <p>{pageContentConfig.production.body}</p> : <NationMembershipNotice />}
     </Panel>
   );
 }
 
 export function NationAssetsPage() {
+  const { activeNation } = useAppData();
+
   return (
     <Panel title={pageContentConfig.assets.title}>
-      <p>{pageContentConfig.assets.body}</p>
+      {activeNation ? <p>{pageContentConfig.assets.body}</p> : <NationMembershipNotice />}
     </Panel>
   );
 }
 
 export function NationFormationsPage() {
+  const { activeNation } = useAppData();
+
   return (
     <Panel title={pageContentConfig.formations.title}>
-      <p>{pageContentConfig.formations.body}</p>
+      {activeNation ? <p>{pageContentConfig.formations.body}</p> : <NationMembershipNotice />}
     </Panel>
   );
 }
 
-export function GmDashboardPage() {
-  const { profile, sessionEntries } = useAppData();
-  const { applications } = useGmApplications();
-  const pendingCount = applications.filter((action) => isReviewableAction(action)).length;
+export function NationReportsPage() {
+  const { activeSession } = useAppData();
+  const { nations, status, error } = useNationDirectory(activeSession?.id);
 
   return (
-    <Panel title={pageContentConfig.gmDashboard.title}>
-      <StatGrid
-        stats={[
-          { label: "Profile Role", value: profile?.globalRole || "Unknown" },
-          { label: "Visible Sessions", value: String(sessionEntries.length) },
-          { label: "Pending Actions", value: pendingCount },
-          { label: "Review Cases", value: mockSession.gmQueue.reviewCases },
-          { label: "New Events", value: mockSession.gmQueue.newEvents },
-        ]}
-      />
+    <Panel title={pageContentConfig.gmReports.title}>
+      <p>{pageContentConfig.gmReports.body}</p>
+      <NationComparisonWorkbench nations={nations} status={status} error={error} />
     </Panel>
   );
 }
 
-export function GmActionsPage() {
+export function NationAdminPage() {
+  const { activeSession } = useAppData();
+  const { nations, memberships, usersById, status, error, setNations, setMemberships } = useNationAdminData(activeSession?.id);
+  const [selectedNationId, setSelectedNationId] = useState("");
+  const [statusValue, setStatusValue] = useState("active");
+  const [ownerValue, setOwnerValue] = useState("");
+  const [saveState, setSaveState] = useState({
+    status: "idle",
+    error: "",
+    message: "",
+  });
+
+  useEffect(() => {
+    if (!nations.length) {
+      setSelectedNationId("");
+      return;
+    }
+
+    setSelectedNationId((current) => current || nations[0]?.id || "");
+  }, [nations]);
+
+  const selectedNation = nations.find((nation) => nation.id === selectedNationId) || null;
+  const nationMemberships = memberships.filter((membership) => membership.nationId === selectedNationId);
+  const ownerCandidates = nationMemberships.filter((membership) => membership.status === "active");
+
+  useEffect(() => {
+    if (!selectedNation) {
+      setStatusValue("active");
+      setOwnerValue("");
+      return;
+    }
+
+    setStatusValue(selectedNation.status || "active");
+    setOwnerValue(selectedNation.ownerUserIds?.[0] || ownerCandidates[0]?.userId || "");
+  }, [selectedNationId, selectedNation?.status, selectedNation?.ownerUserIds, ownerCandidates]);
+
+  function getUserLabel(userId) {
+    const userRecord = usersById[userId];
+    return userRecord?.displayName || userRecord?.email || userId;
+  }
+
+  async function handleSaveNationSettings() {
+    if (!selectedNation) {
+      return;
+    }
+
+    setSaveState({
+      status: "saving",
+      error: "",
+      message: "",
+    });
+
+    try {
+      await updateEntity("nations", selectedNation.id, {
+        status: statusValue,
+        ownerUserIds: ownerValue ? [ownerValue] : [],
+      });
+
+      const ownerMembership = nationMemberships.find((membership) => membership.userId === ownerValue);
+
+      if (ownerMembership) {
+        await updateEntity("nationMemberships", ownerMembership.id, {
+          role: "owner",
+          status: "active",
+        });
+      }
+
+      await Promise.all(
+        nationMemberships
+          .filter((membership) => membership.userId !== ownerValue && membership.role === "owner")
+          .map((membership) =>
+            updateEntity("nationMemberships", membership.id, {
+              role: "member",
+            }),
+          ),
+      );
+
+      setNations((current) =>
+        current.map((nation) =>
+          nation.id === selectedNation.id
+            ? {
+                ...nation,
+                status: statusValue,
+                ownerUserIds: ownerValue ? [ownerValue] : [],
+              }
+            : nation,
+        ),
+      );
+
+      setMemberships((current) =>
+        current.map((membership) =>
+          membership.nationId !== selectedNation.id
+            ? membership
+            : membership.userId === ownerValue
+              ? { ...membership, role: "owner", status: "active" }
+              : membership.role === "owner"
+                ? { ...membership, role: "member" }
+                : membership,
+        ),
+      );
+
+      setSaveState({
+        status: "success",
+        error: "",
+        message: "Nation administration settings saved.",
+      });
+    } catch (nextError) {
+      setSaveState({
+        status: "error",
+        error: nextError.message || "Unable to save nation administration settings.",
+        message: "",
+      });
+    }
+  }
+
+  return (
+    <Panel title={pageContentConfig.gmNations.title}>
+      <p>{pageContentConfig.gmNations.body}</p>
+
+      {error ? <p className="error-copy">{error}</p> : null}
+      {!nations.length ? (
+        <p className="support-copy">{status === "loading" ? "Loading nation administration..." : "No nations found in the active session."}</p>
+      ) : (
+        <div className="nation-admin-grid">
+          <article className="comparison-pane">
+            <div className="comparison-pane-header">
+              <div>
+                <span className="label">Nation Target</span>
+                <h2>{selectedNation?.name || "Select a nation"}</h2>
+              </div>
+              <p className="soft-copy">Choose a nation, set its lifecycle status, and control who owns it.</p>
+            </div>
+
+            <div className="comparison-control-grid">
+              <label className="field-stack">
+                <span className="label">Nation</span>
+                <select value={selectedNationId} onChange={(event) => setSelectedNationId(event.target.value)}>
+                  {nations.map((nation) => (
+                    <option key={nation.id} value={nation.id}>
+                      {nation.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field-stack">
+                <span className="label">Status</span>
+                <select value={statusValue} onChange={(event) => setStatusValue(event.target.value)}>
+                  {nationAdminConfig.statuses.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="field-stack admin-owner-field">
+              <span className="label">Primary Owner</span>
+              <select value={ownerValue} onChange={(event) => setOwnerValue(event.target.value)} disabled={!ownerCandidates.length}>
+                {ownerCandidates.map((membership) => (
+                  <option key={membership.id} value={membership.userId}>
+                    {getUserLabel(membership.userId)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="card-grid">
+              <article className="action-card">
+                <strong>Current Status</strong>
+                <p>{selectedNation?.status || "unknown"}</p>
+              </article>
+              <article className="action-card">
+                <strong>Owners</strong>
+                <p>{selectedNation?.ownerUserIds?.length ? selectedNation.ownerUserIds.map(getUserLabel).join(", ") : "No owner assigned"}</p>
+              </article>
+              <article className="action-card">
+                <strong>Membership Count</strong>
+                <p>{nationMemberships.length}</p>
+              </article>
+            </div>
+
+            <div className="decision-row">
+              <button className="utility-button" type="button" onClick={handleSaveNationSettings} disabled={saveState.status === "saving"}>
+                Save Nation Settings
+              </button>
+            </div>
+
+            {saveState.message ? <p className="success-copy">{saveState.message}</p> : null}
+            {saveState.error ? <p className="error-copy">{saveState.error}</p> : null}
+          </article>
+
+          <article className="comparison-pane">
+            <div className="comparison-pane-header">
+              <div>
+                <span className="label">Membership Roster</span>
+                <h2>{selectedNation?.name || "No nation selected"}</h2>
+              </div>
+              <p className="soft-copy">Review active and pending members before changing ownership or status.</p>
+            </div>
+
+            {nationMemberships.length ? (
+              <div className="admin-membership-stack">
+                {nationMemberships.map((membership) => (
+                  <article key={membership.id} className="action-card">
+                    <strong>{getUserLabel(membership.userId)}</strong>
+                    <p>Role: {nationAdminConfig.membershipRoles[membership.role] || membership.role}</p>
+                    <p>Status: {nationAdminConfig.membershipStatuses[membership.status] || membership.status}</p>
+                    <p>User ID: {membership.userId}</p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="support-copy">No memberships found for this nation yet.</p>
+            )}
+          </article>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+function GmReviewQueueSection() {
   const { user } = useAuth();
   const { applications, setApplications, status, error } = useGmApplications();
   const [decisionState, setDecisionState] = useState({
@@ -876,18 +1121,10 @@ export function GmActionsPage() {
   );
 }
 
-export function GmNationsPage() {
-  return (
-    <Panel title={pageContentConfig.gmNations.title}>
-      <p>{pageContentConfig.gmNations.body}</p>
-    </Panel>
-  );
-}
-
 export function GmReportsPage() {
   return (
     <Panel title={pageContentConfig.gmReports.title}>
-      <p>{pageContentConfig.gmReports.body}</p>
+      <p>Nation comparison now lives under the Nation section at `/app/nation/reports` so it stays grouped with nation analysis surfaces.</p>
     </Panel>
   );
 }

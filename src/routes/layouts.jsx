@@ -2,11 +2,12 @@ import { NavLink, Outlet } from "react-router-dom";
 import { authConfig } from "../config/auth.config";
 import { layoutContentConfig } from "../config/layoutContent.config";
 import { navigationConfig } from "../config/navigation.config";
+import { shellSummaryConfig } from "../config/shellSummary.config";
 import { useAppData } from "../features/app/AppDataProvider";
 import { useAuth } from "../features/auth/AuthProvider";
 import { mockSession } from "../features/session/mockSession";
 
-function LayoutFrame({ title, subtitle, navItems, authSlot, children }) {
+function LayoutFrame({ title, subtitle, navItems, authSlot, summarySessionName, summaryDay, children }) {
   return (
     <main className="shell">
       <header className="shell-header">
@@ -18,11 +19,11 @@ function LayoutFrame({ title, subtitle, navItems, authSlot, children }) {
         <section className="summary-chip-row">
           <article className="summary-chip">
             <span className="label">Session</span>
-            <strong>{mockSession.name}</strong>
+            <strong>{summarySessionName}</strong>
           </article>
           <article className="summary-chip">
             <span className="label">Day</span>
-            <strong>{mockSession.currentDay}</strong>
+            <strong>{summaryDay}</strong>
           </article>
         </section>
       </header>
@@ -58,6 +59,8 @@ export function PublicLayout() {
       title={layoutContentConfig.public.title}
       subtitle={layoutContentConfig.public.subtitle}
       navItems={navigationConfig.public}
+      summarySessionName={shellSummaryConfig.fallbackSessionName}
+      summaryDay={shellSummaryConfig.fallbackDay}
       authSlot={
         isAuthenticated ? (
           <div className="auth-actions">
@@ -80,15 +83,17 @@ export function AppLayout() {
   const { user, logOut } = useAuth();
   const { activeSession, canAccessGm, canSelfRevokeGmElevation, clearAdminElevation, error, profile, status } = useAppData();
   const displayName = user?.displayName || user?.email || mockSession.currentUser.displayName;
-  const appNavItems = canAccessGm ? navigationConfig.app : navigationConfig.app.filter((item) => item.to !== "/app/gm");
-  const sessionName = activeSession?.name || "No active session";
-  const currentDay = activeSession?.currentDay ?? mockSession.currentDay;
+  const appNavItems = navigationConfig.app.filter((item) => !item.requiresGm || canAccessGm);
+  const sessionName = activeSession?.name || shellSummaryConfig.fallbackSessionName;
+  const currentDay = activeSession?.currentDay ?? shellSummaryConfig.fallbackDay;
 
   return (
     <LayoutFrame
       title={layoutContentConfig.app.title}
       subtitle={`${layoutContentConfig.app.subtitlePrefix} ${displayName}. ${layoutContentConfig.app.subtitleSuffix}`}
       navItems={appNavItems}
+      summarySessionName={sessionName}
+      summaryDay={currentDay}
       authSlot={
         <div className="auth-actions">
           <span className="auth-label">{displayName}</span>
@@ -104,18 +109,13 @@ export function AppLayout() {
       }
     >
       <section className="section-stack">
-        <div className="panel utility-bar">
-          <div>
-            <span className="label">Active Session</span>
-            <strong>{sessionName}</strong>
-            <p className="support-copy utility-copy">Day {currentDay}</p>
-          </div>
-          <div>
+        {error ? (
+          <div className="panel">
             <span className="label">Data Status</span>
             <strong>{status}</strong>
-            {error ? <p className="error-copy utility-copy">{error}</p> : null}
+            <p className="error-copy utility-copy">{error}</p>
           </div>
-        </div>
+        ) : null}
         <Outlet />
       </section>
     </LayoutFrame>
@@ -123,8 +123,11 @@ export function AppLayout() {
 }
 
 export function NationLayout() {
-  const { activeNation } = useAppData();
-  const nationName = activeNation?.name || mockSession.nation.name;
+  const { activeNation, canAccessGm } = useAppData();
+  const nationName = activeNation?.name || (canAccessGm ? "Nation Workspace" : "No Active Nation");
+  const nationNavItems = navigationConfig.nation.filter(
+    (item) => (!item.requiresGm || canAccessGm) && (!item.requiresNation || Boolean(activeNation)),
+  );
 
   return (
     <section className="section-stack">
@@ -134,42 +137,13 @@ export function NationLayout() {
             <p className="eyebrow eyebrow-inline">{layoutContentConfig.nation.eyebrow}</p>
             <h2>{nationName}</h2>
           </div>
-          <p className="soft-copy">{layoutContentConfig.nation.subtitle}</p>
+          <p className="soft-copy">
+            {activeNation ? layoutContentConfig.nation.subtitle : "Player nation routes appear here once you have an active nation membership."}
+          </p>
         </div>
         <nav className="sub-nav" aria-label="Nation navigation">
-          {navigationConfig.nation.map((item) => (
+          {nationNavItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? "nav-pill active" : "nav-pill")}>
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
-      <Outlet />
-    </section>
-  );
-}
-
-export function GmLayout() {
-  const { profile } = useAppData();
-
-  return (
-    <section className="section-stack">
-      <div className="panel">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow eyebrow-inline">{layoutContentConfig.gm.eyebrow}</p>
-            <h2>{layoutContentConfig.gm.title}</h2>
-          </div>
-          <p className="soft-copy">{layoutContentConfig.gm.subtitle} Current profile role: {profile?.globalRole || "unknown"}.</p>
-        </div>
-        <nav className="sub-nav" aria-label="GM navigation">
-          {navigationConfig.gm.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) => (isActive ? "nav-pill active" : "nav-pill")}
-            >
               {item.label}
             </NavLink>
           ))}

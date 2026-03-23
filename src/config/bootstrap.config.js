@@ -8,7 +8,6 @@ export const bootstrapConfig = {
   nationsCollection: "nations",
   defaultGlobalRole: "player",
   gmRoles: ["gm", "admin"],
-  bootstrapAdminEmails: ["gamerman306eight@gmail.com"],
   localStorageKeys: {
     activeSessionId: "pwd.activeSessionId",
   },

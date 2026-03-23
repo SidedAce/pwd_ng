@@ -30,6 +30,8 @@ The goal of this phase is to remove ambiguity before code exists. We will define
 - [docs/17-action-handler-architecture.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/17-action-handler-architecture.md)
 - [docs/18-action-definition-registry.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/18-action-definition-registry.md)
 - [docs/19-gm-key-elevation.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/19-gm-key-elevation.md)
+- [docs/20-nation-comparison-workbench.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/20-nation-comparison-workbench.md)
+- [docs/21-nation-administration.md](/C:/Users/Sided/OneDrive/Documents/pwd_ng/docs/21-nation-administration.md)
 
 ## Planning Principles
 

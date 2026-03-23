@@ -49,7 +49,12 @@ export const demoConfig = {
         tags: ["demo", "joinable"],
         structureCount: 18,
         dailyIncome: "$84M / day",
-        assetCount: 0,
+        assetCount: 134,
+        militaryAssetQuantities: {
+          landUnits: 96,
+          airUnits: 24,
+          navalUnits: 14,
+        },
       },
     },
     {
@@ -70,7 +75,12 @@ export const demoConfig = {
         tags: ["demo", "joinable"],
         structureCount: 11,
         dailyIncome: "$51M / day",
-        assetCount: 0,
+        assetCount: 88,
+        militaryAssetQuantities: {
+          landUnits: 53,
+          airUnits: 21,
+          navalUnits: 14,
+        },
       },
     },
   ],
